@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Test</title>
+</head>
+<body>
+    <h1>Bakalari Login Test</h1>
+    <button onclick="testFetchLogin()">Test Fetch Login</button>
+    <button onclick="testXHRLogin()">Test XHR Login</button>
+    <div id="result"></div>
+
+    <script>
+        function testFetchLogin() {
+            const mockResponse = {
+                "bak:UserId": "UUUZFG",
+                "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImZ0MkdUODVZYTAyX2t6a0pzTzVrdFEiLCJ0eXAiOiJhdCtqd3QifQ.test_payload_here",
+                "token_type": "Bearer",
+                "expires_in": 3599
+            };
+            
+            // Mock fetch for testing
+            const originalFetch = window.fetch;
+            window.fetch = async function(url, options) {
+                if (url.includes('/api/login')) {
+                    return new Response(JSON.stringify(mockResponse), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+                return originalFetch(url, options);
+            };
+            
+            // Test the login
+            fetch('https://15.beta.bakalari.cz/api/login', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic dGVzdDp0ZXN0',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  document.getElementById('result').innerHTML = '<pre>Fetch Response: ' + JSON.stringify(data, null, 2) + '</pre>';
+              });
+        }
+
+        function testXHRLogin() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://15.beta.bakalari.cz/api/login');
+            xhr.setRequestHeader('Authorization', 'Basic dGVzdDp0ZXN0');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    document.getElementById('result').innerHTML = '<pre>XHR Response: ' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            };
+            
+            // Mock the response
+            const mockResponse = {
+                "bak:UserId": "UUUZFG",
+                "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImZ0MkdUODVZYTAyX2t6a0pzTzVrdFEiLCJ0eXAiOiJhdCtqd3QifQ.test_payload_here",
+                "token_type": "Bearer",
+                "expires_in": 3599
+            };
+            
+            // For testing, we'll simulate a successful response
+            setTimeout(() => {
+                xhr._readyState = 4;
+                xhr._status = 200;
+                xhr._responseText = JSON.stringify(mockResponse);
+                xhr._interceptUrl = 'https://15.beta.bakalari.cz/api/login';
+                
+                // Trigger the event manually for testing
+                const event = new Event('readystatechange');
+                xhr.dispatchEvent(event);
+            }, 100);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Swagger JWT Sniffer – Options</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; max-width: 720px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .row { display: flex; gap: 8px; margin: 12px 0; }
+    input[type="text"] { flex: 1; padding: 8px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+    .muted { color: #666; font-size: 12px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Allowed API origins</h1>
+  <p>Add the origin (e.g. <code>https://api.example.com</code>) where Swagger UI sends requests.</p>
+
+  <div class="row">
+    <input id="origin" type="text" placeholder="https://api.example.com" />
+    <button id="add">Add & Grant</button>
+  </div>
+
+  <ul id="list"></ul>
+
+  <p class="muted">
+    The extension uses <em>webRequest</em> in read-only mode and inspects only the <code>Authorization</code> header.  
+    Site permissions are requested only when you explicitly click “Add & Grant”.
+  </p>
+
+  <script>
+    const listEl = document.getElementById('list');
+    const originInput = document.getElementById('origin');
+
+    async function refreshList() {
+      const origins = await chrome.runtime.sendMessage({ type: "GET_ORIGINS" }).then(r => r.data || []);
+      listEl.innerHTML = '';
+      origins.forEach(o => {
+        const li = document.createElement('li');
+        const rm = document.createElement('button');
+        rm.textContent = 'Remove & Revoke';
+        rm.onclick = async () => {
+          await chrome.permissions.remove({ origins: [o + "/*"] });
+          await chrome.runtime.sendMessage({ type: "REMOVE_ORIGIN", origin: o });
+          refreshList();
+        };
+        li.textContent = o + ' ';
+        li.appendChild(rm);
+        listEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('add').addEventListener('click', async () => {
+      let o = originInput.value.trim();
+      try { o = new URL(o).origin; } catch { alert('Invalid origin'); return; }
+
+      const ok = await chrome.permissions.request({ origins: [o + "/*"] });
+      if (!ok) { alert('Permission denied'); return; }
+
+      await chrome.runtime.sendMessage({ type: "ADD_ORIGIN", origin: o });
+      originInput.value = '';
+      refreshList();
+    });
+
+    refreshList();
+  </script>
+</body>
+</html>

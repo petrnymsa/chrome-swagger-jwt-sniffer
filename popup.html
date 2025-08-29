@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Swagger JWT Sniffer (Dev)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 14px; width: 460px; }
+    h1 { font-size: 16px; margin: 0 0 10px; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    button { padding: 6px 10px; cursor: pointer; }
+    pre { white-space: pre-wrap; word-break: break-all; border: 1px solid #ddd; padding: 8px; border-radius: 6px; background: #fafafa; }
+    .muted { color: #666; font-size: 12px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Authorization / JWT</h1>
+
+  <div class="row">
+    <button id="refresh">Refresh</button>
+    <button id="copy">Copy</button>
+    <button id="showHistory">History</button>
+  </div>
+
+  <div id="tokenHistory" style="display: none; margin-bottom: 10px;">
+    <h2 style="font-size: 14px; margin: 10px 0 5px;">Token History:</h2>
+    <select id="tokenSelect" style="width: 100%; margin-bottom: 10px;">
+      <option value="">Select a token...</option>
+    </select>
+  </div>
+
+  <pre id="auth">—</pre>
+
+  <h1>JWT payload (decoded)</h1>
+  <pre id="payload">—</pre>
+
+  <div class="muted" id="status">
+    Hint: Trigger any request in Swagger UI on *.bakalari.cz to capture the Authorization header.
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

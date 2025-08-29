@@ -1,0 +1,38 @@
+{
+    "manifest_version": 3,
+    "name": "Swagger JWT Sniffer (Dev)",
+    "version": "1.2.0",
+    "description": "Capture Authorization (Bearer) headers from Swagger UI requests and view/decode JWT locally.",
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Swagger JWT Sniffer"
+    },
+    "background": {
+        "service_worker": "worker.js"
+    },
+    "permissions": [
+        "activeTab",
+        "storage",
+        "webRequest",
+        "scripting"
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.bakalari.cz/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_start",
+            "all_frames": true
+        }
+    ],
+    "options_page": "options.html",
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    }
+}
