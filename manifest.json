@@ -1,11 +1,17 @@
 {
     "manifest_version": 3,
-    "name": "Swagger JWT Sniffer (Dev)",
-    "version": "1.2.0",
-    "description": "Capture Authorization (Bearer) headers from Swagger UI requests and view/decode JWT locally.",
+    "name": "Swagger JWT Token Extractor",
+    "version": "1.0.0",
+    "description": "Automatically capture and decode JWT tokens from Swagger UI login responses. Perfect for API development and testing.",
+    "author": "Your Name",
     "action": {
         "default_popup": "popup.html",
-        "default_title": "Swagger JWT Sniffer"
+        "default_title": "Swagger JWT Token Extractor",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
     },
     "background": {
         "service_worker": "worker.js"
@@ -19,20 +25,10 @@
     "host_permissions": [
         "*://*/*"
     ],
-    "content_scripts": [
-        {
-            "matches": [
-                "*://*.bakalari.cz/*"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "run_at": "document_start",
-            "all_frames": true
-        }
-    ],
-    "options_page": "options.html",
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'"
-    }
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "options_page": "options.html"
 }

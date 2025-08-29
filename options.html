@@ -2,71 +2,185 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Swagger JWT Sniffer – Options</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Swagger JWT Token Extractor – Options</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; max-width: 720px; }
-    h1 { font-size: 20px; margin: 0 0 12px; }
-    .row { display: flex; gap: 8px; margin: 12px 0; }
-    input[type="text"] { flex: 1; padding: 8px; }
-    button { padding: 8px 12px; cursor: pointer; }
-    ul { padding-left: 20px; }
-    li { margin: 6px 0; }
-    code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
-    .muted { color: #666; font-size: 12px; margin-top: 8px; }
+    body { 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+      margin: 24px; 
+      max-width: 720px; 
+      line-height: 1.5;
+    }
+    h1 { 
+      font-size: 24px; 
+      margin: 0 0 8px; 
+      color: #333;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .section {
+      margin: 32px 0;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      color: #333;
+    }
+    .row { 
+      display: flex; 
+      gap: 12px; 
+      margin: 16px 0; 
+      align-items: center;
+    }
+    input[type="text"] { 
+      flex: 1; 
+      padding: 10px; 
+      border: 2px solid #e0e0e0; 
+      border-radius: 4px; 
+      font-size: 14px;
+    }
+    input[type="text"]:focus { 
+      outline: none; 
+      border-color: #1a73e8; 
+    }
+    button { 
+      padding: 10px 16px; 
+      border: none; 
+      border-radius: 4px; 
+      background: #1a73e8; 
+      color: white; 
+      cursor: pointer; 
+      font-size: 14px; 
+      font-weight: 500;
+    }
+    button:hover { 
+      background: #1557b0; 
+    }
+    button.danger {
+      background: #d93025;
+    }
+    button.danger:hover {
+      background: #b52d20;
+    }
+    ul { 
+      padding-left: 20px; 
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li { 
+      margin: 8px 0; 
+      padding: 12px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    code { 
+      background: #f5f5f5; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 13px;
+    }
+    .muted { 
+      color: #666; 
+      font-size: 13px; 
+      margin-top: 12px; 
+      line-height: 1.4;
+    }
+    .info-box {
+      background: #e8f4fd;
+      border: 1px solid #1a73e8;
+      border-radius: 4px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .info-box strong {
+      color: #1a73e8;
+    }
+    .clear-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 2px solid #e0e0e0;
+    }
   </style>
 </head>
 <body>
-  <h1>Allowed API origins</h1>
-  <p>Add the origin (e.g. <code>https://api.example.com</code>) where Swagger UI sends requests.</p>
+  <h1>Swagger JWT Token Extractor</h1>
+  <div class="subtitle">Configure URL patterns and login endpoints for JWT token extraction</div>
 
-  <div class="row">
-    <input id="origin" type="text" placeholder="https://api.example.com" />
-    <button id="add">Add & Grant</button>
+  <div class="section">
+    <h2>🔗 URL Patterns for Content Scripts</h2>
+    <p>Configure URL patterns where the extension should automatically inject JWT capture scripts. Use Chrome extension match patterns.</p>
+
+    <div class="row">
+      <input id="urlPattern" type="text" placeholder="*://example.com/api/*" />
+      <button id="addPattern">Add Pattern</button>
+    </div>
+
+    <div id="patterns-container">
+      <ul id="patternsList"></ul>
+    </div>
+
+    <div class="info-box">
+      <strong>Pattern Examples:</strong><br>
+      • <code>*://*/swagger/*</code> - Any Swagger path<br>
+      • <code>*://api.example.com/*</code> - Specific API domain<br>
+      • <code>https://*/docs/*</code> - HTTPS docs pages<br>
+      • <code>*://localhost:*/api/*</code> - Local development<br>
+    </div>
+
+    <button id="resetPatterns" class="danger">Reset to Defaults</button>
+
+    <p class="muted">
+      URL patterns determine where content scripts are automatically injected. The extension will monitor JWT tokens on pages matching these patterns.
+    </p>
   </div>
 
-  <ul id="list"></ul>
+  <div class="section">
+    <h2>🔑 Login URL Patterns</h2>
+    <p>Configure URL patterns that identify login endpoints for automatic JWT token capture from response bodies.</p>
 
-  <p class="muted">
-    The extension uses <em>webRequest</em> in read-only mode and inspects only the <code>Authorization</code> header.  
-    Site permissions are requested only when you explicitly click “Add & Grant”.
-  </p>
+    <div class="row">
+      <input id="loginPattern" type="text" placeholder="/api/auth/login" />
+      <button id="addLoginPattern">Add Login Pattern</button>
+    </div>
 
-  <script>
-    const listEl = document.getElementById('list');
-    const originInput = document.getElementById('origin');
+    <div id="login-patterns-container">
+      <ul id="loginPatternsList"></ul>
+    </div>
 
-    async function refreshList() {
-      const origins = await chrome.runtime.sendMessage({ type: "GET_ORIGINS" }).then(r => r.data || []);
-      listEl.innerHTML = '';
-      origins.forEach(o => {
-        const li = document.createElement('li');
-        const rm = document.createElement('button');
-        rm.textContent = 'Remove & Revoke';
-        rm.onclick = async () => {
-          await chrome.permissions.remove({ origins: [o + "/*"] });
-          await chrome.runtime.sendMessage({ type: "REMOVE_ORIGIN", origin: o });
-          refreshList();
-        };
-        li.textContent = o + ' ';
-        li.appendChild(rm);
-        listEl.appendChild(li);
-      });
-    }
+    <div class="info-box">
+      <strong>Pattern Examples:</strong><br>
+      • <code>/api/login</code> - Standard API login<br>
+      • <code>/auth/login</code> - Auth service login<br>
+      • <code>/api/auth/token</code> - Token endpoint<br>
+      • <code>/login</code> - Simple login path<br>
+    </div>
 
-    document.getElementById('add').addEventListener('click', async () => {
-      let o = originInput.value.trim();
-      try { o = new URL(o).origin; } catch { alert('Invalid origin'); return; }
+    <button id="resetLoginPatterns" class="danger">Reset to Defaults</button>
 
-      const ok = await chrome.permissions.request({ origins: [o + "/*"] });
-      if (!ok) { alert('Permission denied'); return; }
+    <p class="muted">
+      Login patterns are URL path fragments that identify authentication endpoints. When a POST request to these paths returns with <code>access_token</code>, it's automatically captured.
+    </p>
+  </div>
 
-      await chrome.runtime.sendMessage({ type: "ADD_ORIGIN", origin: o });
-      originInput.value = '';
-      refreshList();
-    });
+  <div class="section clear-section">
+    <h2>🗑️ Data Management</h2>
+    <p>Clear all stored tokens and reset the extension to its default state.</p>
+    <button id="clear-all" class="danger">Clear All Data</button>
+    <p class="muted">This will remove all captured tokens and their history. This action cannot be undone.</p>
+  </div>
 
-    refreshList();
-  </script>
+  <script src="options.js"></script>
 </body>
 </html>

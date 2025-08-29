@@ -1,0 +1,95 @@
+<svg width="128"
+    height="128"
+    viewBox="0 0 128 128"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="grad1"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%">
+            <stop offset="0%"
+                style="stop-color:#1a73e8;stop-opacity:1" />
+            <stop offset="100%"
+                style="stop-color:#4285f4;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="grad2"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%">
+            <stop offset="0%"
+                style="stop-color:#34d399;stop-opacity:1" />
+            <stop offset="100%"
+                style="stop-color:#10b981;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Background circle -->
+    <circle cx="64"
+        cy="64"
+        r="58"
+        fill="url(#grad1)"
+        stroke="#1557b0"
+        stroke-width="2"/>
+
+    <!-- Security shield -->
+    <path d="M64 20 L44 28 L44 48 C44 68 54 86 64 92 C74 86 84 68 84 48 L84 28 Z"
+        fill="white"
+        opacity="0.9"/>
+
+    <!-- JWT token symbol -->
+    <rect x="50"
+        y="40"
+        width="28"
+        height="4"
+        rx="2"
+        fill="url(#grad2)"/>
+    <rect x="50"
+        y="48"
+        width="22"
+        height="4"
+        rx="2"
+        fill="url(#grad2)"/>
+    <rect x="50"
+        y="56"
+        width="25"
+        height="4"
+        rx="2"
+        fill="url(#grad2)"/>
+
+    <!-- Key icon -->
+    <circle cx="64"
+        cy="72"
+        r="6"
+        fill="url(#grad2)"/>
+    <rect x="64"
+        y="74"
+        width="12"
+        height="3"
+        rx="1"
+        fill="url(#grad2)"/>
+    <rect x="74"
+        y="71"
+        width="3"
+        height="2"
+        rx="1"
+        fill="url(#grad2)"/>
+    <rect x="74"
+        y="75"
+        width="3"
+        height="2"
+        rx="1"
+        fill="url(#grad2)"/>
+
+    <!-- Swagger logo hint -->
+    <text x="64"
+        y="108"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="12"
+        font-weight="bold"
+        fill="white">
+    JWT
+    </text>
+</svg>

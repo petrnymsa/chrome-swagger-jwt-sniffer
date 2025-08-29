@@ -2,7 +2,121 @@ async function activeTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   return tab;
 }
+
 function set(id, text) { document.getElementById(id).textContent = text; }
+
+// Helper: convert URL pattern to regex for matching (same as worker.js)
+function patternToRegex(pattern) {
+  // Convert Chrome extension match pattern to regex
+  // https://developer.chrome.com/docs/extensions/mv3/match_patterns/
+  
+  // Escape special regex chars except * and ?
+  let regex = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '___STAR___')
+    .replace(/\?/g, '___QUESTION___');
+  
+  // Handle special Chrome pattern rules:
+  // * matches any string of characters (including empty string)
+  // Scheme: http, https, *, file, ftp
+  regex = regex
+    .replace(/___STAR___/g, '.*')
+    .replace(/___QUESTION___/g, '.');
+  
+  return regex;
+}
+
+// Check if current page URL matches configured patterns
+async function checkPatternMatch(url) {
+  if (!url) return false;
+  
+  try {
+    const response = await chrome.runtime.sendMessage({ type: "GET_URL_PATTERNS" });
+    const patterns = response?.data || [];
+    
+    console.log('Checking URL against patterns:', url, patterns);
+    
+    for (const pattern of patterns) {
+      try {
+        // Convert Chrome extension match pattern to regex (same logic as worker.js)
+        const regexStr = patternToRegex(pattern);
+        const regexPattern = new RegExp('^' + regexStr + '$', 'i');
+        console.log('Testing pattern:', pattern, '→', regexPattern.source, '→', regexPattern.test(url));
+        
+        if (regexPattern.test(url)) {
+          console.log('✅ URL matches pattern:', pattern);
+          return true;
+        }
+      } catch (e) {
+        console.warn('Invalid pattern:', pattern, e);
+      }
+    }
+    
+    console.log('❌ URL does not match any pattern');
+    return false;
+  } catch (e) {
+    console.error('Error checking pattern match:', e);
+    return false;
+  }
+}
+
+// Update page status indicator
+async function updatePageStatus() {
+  const tab = await activeTab();
+  if (!tab?.url) {
+    set("pageStatus", "Unknown page");
+    document.getElementById("pageUrl").textContent = "";
+    updateStatusIndicator(false, "No active tab");
+    return;
+  }
+  
+  const url = tab.url;
+  console.log('Checking pattern match for URL:', url);
+  
+  const isMatched = await checkPatternMatch(url);
+  console.log('Pattern match result:', isMatched);
+  
+  // Display shortened URL
+  let displayUrl = url;
+  try {
+    const urlObj = new URL(url);
+    displayUrl = `${urlObj.hostname}${urlObj.pathname}`;
+    if (displayUrl.length > 50) {
+      displayUrl = displayUrl.substring(0, 47) + "...";
+    }
+  } catch (e) {
+    if (url.length > 50) {
+      displayUrl = url.substring(0, 47) + "...";
+    }
+  }
+  
+  document.getElementById("pageUrl").textContent = url;
+  
+  if (isMatched) {
+    set("pageStatus", "✅ Extension active");
+    updateStatusIndicator(true, "Active");
+  } else {
+    set("pageStatus", "⚠️ Not configured");
+    updateStatusIndicator(false, "Inactive");
+  }
+}
+
+// Update status indicator
+function updateStatusIndicator(isActive, text) {
+  const indicator = document.getElementById("statusIndicator");
+  const icon = document.getElementById("statusIcon");
+  const statusText = document.getElementById("statusText");
+  
+  if (isActive) {
+    indicator.className = "status-indicator status-active";
+    icon.textContent = "🟢";
+    statusText.textContent = text;
+  } else {
+    indicator.className = "status-indicator status-inactive";
+    icon.textContent = "🟡";
+    statusText.textContent = text;
+  }
+}
 
 function decodeJwtPayload(bearer) {
   if (!bearer) return null;
@@ -58,6 +172,10 @@ function decodeJwtPayload(bearer) {
 
 async function loadLatest() {
   set("status","Loading…");
+  
+  // Update page status first
+  await updatePageStatus();
+  
   const tab = await activeTab();
   if (!tab?.id) { set("status","No active tab."); return; }
 
@@ -78,7 +196,15 @@ async function loadLatest() {
   if (!data?.header) {
     set("auth","—");
     set("payload","—");
-    set("status","Nothing captured yet. Trigger a request on *.bakalari.cz (Swagger UI).");
+    
+    const tab = await activeTab();
+    const isMatched = await checkPatternMatch(tab?.url);
+    
+    if (isMatched) {
+      set("status","Extension is active on this page. Perform login or authenticated requests to capture JWT tokens.");
+    } else {
+      set("status","This page is not configured for JWT capture. Add URL patterns in Options or visit a Swagger UI page.");
+    }
     return;
   }
 
@@ -92,7 +218,7 @@ async function loadLatest() {
   console.log("Decoded payload result:", payload);
   
   set("payload", payload ? JSON.stringify(payload, null, 2) : "—");
-  set("status","Done.");
+  set("status","Token captured successfully!");
 }
 
 async function copyAll() {
@@ -178,4 +304,8 @@ document.getElementById('refresh').addEventListener('click', loadLatest);
 document.getElementById('copy').addEventListener('click', copyAll);
 document.getElementById('showHistory').addEventListener('click', showHistory);
 document.getElementById('tokenSelect').addEventListener('change', onTokenSelect);
+document.getElementById('openOptions').addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+});
+
 loadLatest();

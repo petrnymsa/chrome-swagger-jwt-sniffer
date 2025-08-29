@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swagger JWT Token Extractor - Store Preview</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 1200px;
+            height: 720px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .left-panel {
+            padding: 60px 40px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .right-panel {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #fff;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0 0 16px 0;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 16px;
+            color: #475569;
+        }
+        
+        .features li::before {
+            content: '✅';
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .mock-extension {
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mock-popup {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 280px;
+            margin: 0 auto;
+        }
+        
+        .mock-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .mock-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            border-radius: 4px;
+        }
+        
+        .mock-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .mock-content {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .mock-token {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 4px;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 10px;
+            color: #0c4a6e;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .mock-swagger {
+            background: #89f7fe;
+            background: linear-gradient(180deg, #89f7fe 0%, #66a6ff 100%);
+            border-radius: 8px;
+            padding: 16px;
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .swagger-header {
+            background: #1a202c;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        
+        .swagger-content {
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 11px;
+            color: #374151;
+            line-height: 1.4;
+        }
+        
+        .mock-options {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: 140px;
+            overflow: hidden;
+        }
+        
+        .options-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        
+        .options-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        .options-pattern {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="logo">🔐</div>
+            <h1>Swagger JWT Token Extractor</h1>
+            <p class="subtitle">Automatically capture and manage JWT tokens from Swagger UI for seamless API testing</p>
+            
+            <ul class="features">
+                <li>Auto-detect JWT tokens from login responses</li>
+                <li>Capture tokens from Authorization headers</li>
+                <li>Configurable URL patterns and login endpoints</li>
+                <li>Token history with source tracking</li>
+                <li>One-click copy to clipboard</li>
+                <li>Works with any Swagger UI implementation</li>
+            </ul>
+        </div>
+        
+        <div class="right-panel">
+            <div class="mock-extension">
+                <div class="mock-popup">
+                    <div class="mock-header">
+                        <div class="mock-icon"></div>
+                        <div class="mock-title">JWT Token Extractor</div>
+                    </div>
+                    <div class="mock-content">Latest captured token:</div>
+                    <div class="mock-token">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</div>
+                </div>
+            </div>
+            
+            <div class="mock-swagger">
+                <div class="swagger-header">🔗 Swagger UI</div>
+                <div class="swagger-content">
+                    Automatically captures JWT tokens when you:
+                    <br>• Login through Swagger UI
+                    <br>• Make authenticated API calls
+                    <br>• Access protected endpoints
+                </div>
+            </div>
+            
+            <div class="mock-options">
+                <div class="options-title">🔧 Configuration</div>
+                <div class="options-item">
+                    <span>URL Pattern:</span>
+                    <span class="options-pattern">*://*/swagger/*</span>
+                </div>
+                <div class="options-item">
+                    <span>Login Pattern:</span>
+                    <span class="options-pattern">/api/login</span>
+                </div>
+                <div class="options-item">
+                    <span>Status:</span>
+                    <span style="color: #10b981;">✅ Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
